@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -27,6 +28,7 @@ class ExpenseAdapter(
     companion object {
         private val DIFF = object : DiffUtil.ItemCallback<Expense>() {
             override fun areItemsTheSame(oldItem: Expense, newItem: Expense): Boolean {
+                // Si luego agregan un ID único, cámbienlo por oldItem.id == newItem.id
                 return oldItem == newItem
             }
 
@@ -77,6 +79,7 @@ class ExpenseAdapter(
         private val onDelete: (Expense) -> Unit
     ) : RecyclerView.ViewHolder(itemView) {
 
+        private val imgCategory: ImageView = itemView.findViewById(R.id.imgCategory)
         private val tvLeft: TextView = itemView.findViewById(R.id.tvLeft)
         private val tvRight: TextView = itemView.findViewById(R.id.tvRight)
         private val btnDelete: ImageButton = itemView.findViewById(R.id.btnDelete)
@@ -88,19 +91,40 @@ class ExpenseAdapter(
         private val ars: NumberFormat = NumberFormat.getCurrencyInstance(Locale("es", "AR"))
 
         /*
+           Mapea categoría → drawable de ícono.
+        */
+        private fun iconForCategory(category: String): Int {
+            return when (category.trim().lowercase()) {
+                "comida" -> R.drawable.ic_cat_comida
+                "transporte" -> R.drawable.ic_cat_transporte
+                "hogar" -> R.drawable.ic_cat_hogar
+                "ocio" -> R.drawable.ic_cat_ocio
+                "salud" -> R.drawable.ic_cat_salud
+                "educación", "educacion" -> R.drawable.ic_cat_educacion
+                else -> R.drawable.ic_cat_otros
+            }
+        }
+
+        /*
            Muestra los datos del gasto en el ítem correspondiente.
-           Incluye la categoría, nota (si existe) y monto formateado.
+           Incluye la categoría, nota (si existe), monto formateado e ícono.
         */
         fun bind(e: Expense) {
+            // Texto izquierda: "Categoría • Nota" (si hay nota)
             tvLeft.text = if (e.note.isBlank()) e.category else "${e.category} • ${e.note}"
+
+            // Monto a la derecha (formateado)
             tvRight.text = ars.format(e.amount)
 
-            // Asigna descripción accesible si no está definida en el XML.
+            // Ícono según categoría
+            imgCategory.setImageResource(iconForCategory(e.category))
+
+            // Descripción accesible para el botón borrar
             if (btnDelete.contentDescription == null) {
                 btnDelete.contentDescription = itemView.context.getString(R.string.cd_delete_expense)
             }
 
-            // Acción de eliminar cuando se presiona el botón.
+            // Acción de eliminar
             btnDelete.setOnClickListener { onDelete(e) }
         }
     }

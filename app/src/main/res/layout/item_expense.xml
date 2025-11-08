@@ -1,36 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="@dimen/list_item_min_height"
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:padding="@dimen/space_s"
-    android:background="?attr/selectableItemBackground"> <!-- Prefiero ripple en toda la fila -->
+    android:background="?attr/selectableItemBackground">
 
-    <!-- Decido dividir en izquierda (categoría • nota) y derecha (monto + borrar). -->
-<TextView
-android:id="@+id/tvLeft"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_weight="1"
-android:maxLines="1"
-android:ellipsize="end"
-android:textAppearance="?attr/textAppearanceBodyMedium" />
+    <!-- Ícono de categoría -->
+    <ImageView
+        android:id="@+id/imgCategory"
+        android:layout_width="@dimen/icon_touch_target"
+        android:layout_height="@dimen/icon_touch_target"
+        android:padding="@dimen/space_s"
+        android:contentDescription="@string/app_name"
+        app:srcCompat="@drawable/ic_cat_otros" />
 
-<TextView
-android:id="@+id/tvRight"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:layout_marginEnd="@dimen/space_s"
-android:textAppearance="?attr/textAppearanceBodyMedium" />
+    <!-- Contenedor de textos (izquierda: categoría • nota) -->
+    <TextView
+        android:id="@+id/tvLeft"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="@dimen/space_s"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textAppearance="?attr/textAppearanceBodyMedium" />
 
-<ImageButton
-android:id="@+id/btnDelete"
-    android:layout_width="@dimen/icon_touch_target"
-    android:layout_height="@dimen/icon_touch_target"
-    android:contentDescription="@string/cd_delete_expense"
-    android:src="@android:drawable/ic_menu_delete"
-    android:background="?attr/selectableItemBackgroundBorderless" />
-    </LinearLayout>
+    <!-- Monto (derecha) -->
+    <TextView
+        android:id="@+id/tvRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/space_s"
+        android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+    <!-- Botón borrar -->
+    <ImageButton
+        android:id="@+id/btnDelete"
+        android:layout_width="@dimen/icon_touch_target"
+        android:layout_height="@dimen/icon_touch_target"
+        android:contentDescription="@string/cd_delete_expense"
+        app:srcCompat="@android:drawable/ic_menu_delete"
+        android:background="?attr/selectableItemBackgroundBorderless" />
+
+</LinearLayout>
