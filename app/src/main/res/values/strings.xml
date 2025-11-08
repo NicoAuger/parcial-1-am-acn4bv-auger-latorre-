@@ -53,9 +53,16 @@
     <string name="summary_spent">Gastado: $0</string>
 
     <!-- ExpenseDetailActivity -->
-<string name="sin_nota">Sin nota</string>
-<!-- Por si no las tuvieras aún en el proyecto -->
-<string name="edit">Editar</string>
-<string name="delete">Eliminar</string>
+    <string name="sin_nota">Sin nota</string>
+    <string name="edit_expense">Editar gasto</string>
+    <string name="amount_hint">Monto</string>
+    <string name="note_hint">Nota (opcional)</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="msg_saved">Guardado</string>
+
+    <!-- Por si no las tuvieras aún en el proyecto -->
+    <string name="edit">Editar</string>
+    <string name="delete">Eliminar</string>
 
 </resources>

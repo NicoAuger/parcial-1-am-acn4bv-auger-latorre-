@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.text.NumberFormat
 import java.util.Locale
+import androidx.activity.result.contract.ActivityResultContracts
+
 
 /* Actividad principal. Administra el presupuesto, la carga de gastos, el listado y el gráfico por categoría. */
 class MainActivity : AppCompatActivity() {
@@ -132,7 +134,7 @@ class MainActivity : AppCompatActivity() {
             },
             onClick = { expense ->
                 val intent = ExpenseDetailActivity.newIntent(this, expense)
-                startActivity(intent)
+                detailLauncher.launch(intent)
             }
         )
         recyclerExpenses.adapter = expensesAdapter
@@ -321,6 +323,41 @@ class MainActivity : AppCompatActivity() {
             chartContainer.addView(empty)
         }
     }
+    private val detailLauncher = registerForActivityResult(
+    ActivityResultContracts.StartActivityForResult()
+) { res ->
+    if (res.resultCode != RESULT_OK) return@registerForActivityResult
+    val data = res.data ?: return@registerForActivityResult
+
+    val action = data.getStringExtra(ExpenseDetailActivity.RES_ACTION)
+    val original = data.getParcelableExtra<Expense>(ExpenseDetailActivity.RES_ORIGINAL)
+    when (action) {
+        ExpenseDetailActivity.ACTION_DELETE -> {
+            if (original != null) {
+                expenses.remove(original)
+                recalcTotalsFromScratch()
+                expensesAdapter.submitList(expenses.toList())
+                updateSummary()
+                updateCategoryChart()
+                toast(getString(R.string.msg_deleted))
+            }
+        }
+        ExpenseDetailActivity.ACTION_EDIT -> {
+            val updated = data.getParcelableExtra<Expense>(ExpenseDetailActivity.RES_UPDATED)
+            if (original != null && updated != null) {
+                val idx = expenses.indexOf(original)
+                if (idx >= 0) {
+                    expenses[idx] = updated
+                    recalcTotalsFromScratch()
+                    expensesAdapter.submitList(expenses.toList())
+                    updateSummary()
+                    updateCategoryChart()
+                    toast(getString(R.string.msg_saved))
+                }
+            }
+        }
+    }
+}
 
     /* Helpers de parsing y UX. */
     private fun parseAmount(raw: String): Double? =
