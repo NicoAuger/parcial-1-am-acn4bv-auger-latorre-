@@ -22,7 +22,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- INICIO DE LA MODIFICACIÓN: TextView para la fecha -->
+    <!-- Fecha actual -->
     <TextView
         android:id="@+id/tvCurrentDate"
         android:layout_width="0dp"
@@ -34,7 +34,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvHeader"
         tools:text="21 de noviembre de 2025" />
-    <!-- FIN DE LA MODIFICACIÓN -->
 
     <!-- Presupuesto inicial -->
     <EditText
@@ -78,7 +77,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
-            android:id="@+id/tvBudget"
+            android:id="@++id/tvBudget"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -181,6 +180,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- TextView para el tip descargado desde URL -->
+    <TextView
+        android:id="@+id/tvTip"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Cargando tip..."
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/chartContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Lista de gastos con RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerExpenses"
@@ -188,7 +201,7 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:paddingBottom="72dp"
-        app:layout_constraintTop_toBottomOf="@id/chartContainer"
+        app:layout_constraintTop_toBottomOf="@id/tvTip"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nauger.misgastosdiarios">
 
-    <!-- Define la configuración base del proyecto y su identificador de paquete -->
+    <!-- Permiso necesario para descargar contenido e imágenes desde internet -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -18,7 +19,6 @@
 
         <activity android:name=".ExpenseDetailActivity" />
 
-        <!-- Actividad principal que se ejecuta al iniciar la aplicación -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
@@ -28,14 +28,13 @@
             </intent-filter>
         </activity>
 
-        <!-- Registra la actividad principal a la que se navega después del login -->
         <activity
             android:name=".MainActivity"
             android:exported="false" />
+
         <activity
             android:name=".MonthlySummaryActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false" />
 
     </application>
 

@@ -22,6 +22,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
+// IMPORTS NUEVOS PARA HTTP
+import okhttp3.OkHttpClient
+import okhttp3.Request
+
 /* Actividad principal. Administra el presupuesto, la carga de gastos, el listado y el gráfico por categoría. */
 class MainActivity : AppCompatActivity() {
 
@@ -57,7 +61,6 @@ class MainActivity : AppCompatActivity() {
     private val prefs by lazy { getSharedPreferences("gastos_prefs", Context.MODE_PRIVATE) }
     private val dayFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-
     /* Fuente de datos en memoria para los gastos (alcance académico). */
     private val expenses = mutableListOf<Expense>()
 
@@ -80,6 +83,14 @@ class MainActivity : AppCompatActivity() {
     private val ars: NumberFormat by lazy { NumberFormat.getCurrencyInstance(Locale("es", "AR")) }
     private val pct: NumberFormat by lazy {
         NumberFormat.getNumberInstance(Locale("es", "AR")).apply { maximumFractionDigits = 1 }
+    }
+
+    // NUEVO: cliente HTTP reutilizable y URL del tips.txt
+    private val httpClient by lazy { OkHttpClient() }
+
+    private companion object {
+        private const val TIPS_URL =
+            "https://raw.githubusercontent.com/NicoAuger/parcial-1-am-acn4bv-auger-latorre-/refs/heads/main/contenido/tips.txt"
     }
 
     /* Ciclo de vida: configura vistas, adaptadores, listeners y estado inicial. */
@@ -105,6 +116,9 @@ class MainActivity : AppCompatActivity() {
 
         updateSummary()
         updateCategoryChart()
+
+        // NUEVO: carga de tip desde URL
+        loadTipFromUrl()
     }
 
     /* Vincula componentes de la interfaz con sus IDs. */
@@ -228,7 +242,7 @@ class MainActivity : AppCompatActivity() {
         popup.menu.add(0, 1, 0, getString(R.string.menu_clear_expenses))
         popup.menu.add(0, 2, 1, getString(R.string.menu_recalc_summary))
         popup.menu.add(0, 3, 2, getString(R.string.menu_monthly_summary))
-        popup.menu.add(1, 4, 3, getString(R.string.menu_logout)) // MODIFICADO PARA USAR STRINGS.XML
+        popup.menu.add(1, 4, 3, getString(R.string.menu_logout))
         popup.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 1 -> { clearAll(); true }
@@ -238,7 +252,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 4 -> {
-                    signOut() // Llamamos a la función de cierre de sesión
+                    signOut()
                     true
                 }
                 else -> false
@@ -248,21 +262,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun signOut() {
-        // Cierra la sesión del usuario en Firebase
         auth.signOut()
-
-        // Crea un Intent para volver a LoginActivity
         val intent = Intent(this, LoginActivity::class.java)
-
-        // Limpia la pila de actividades para que el usuario no pueda
-        // volver a MainActivity con el botón de "atrás"
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-
-        // Inicia la actividad de Login y cierra la actual
         startActivity(intent)
         finish()
     }
-
 
     /* Elimina todos los gastos y reinicia acumulados y vistas. */
     private fun clearAll(withToast: Boolean = true) {
@@ -277,24 +282,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     // Revisa día actual vs último día guardado.
-    // Si cambió, guarda el total del día anterior y limpia datos para el nuevo día.
     private fun initDayRollingSummary() {
         val today = dayFormat.format(Date())
         val lastDay = prefs.getString("last_day", null)
 
         if (lastDay == null) {
-            // Primera vez que se abre la app
             prefs.edit().putString("last_day", today).apply()
         } else if (lastDay != today) {
-            // Cambió el día: guardamos total del día anterior
             saveDayTotal(lastDay)
-
-            // Limpiamos los gastos en memoria pero SIN mostrar el toast
             clearAll(withToast = false)
-
-            // Actualizamos el día actual
             prefs.edit().putString("last_day", today).apply()
         }
     }
@@ -302,15 +299,12 @@ class MainActivity : AppCompatActivity() {
     // Guarda el total gastado de un día en SharedPreferences
     private fun saveDayTotal(day: String) {
         val spentKey = "day_total_$day"
-        val budgetKey = "day_budget_$day" // Nueva clave para el presupuesto
+        val budgetKey = "day_budget_$day"
         prefs.edit()
             .putFloat(spentKey, spent.toFloat())
-            .putFloat(budgetKey, budget.toFloat()) // Guardamos el presupuesto del día
+            .putFloat(budgetKey, budget.toFloat())
             .apply()
     }
-
-
-
 
     /* Inicializa el mapa de categorías con valor 0. */
     private fun initCategoryTotals() {
@@ -343,13 +337,11 @@ class MainActivity : AppCompatActivity() {
             tvRemaining.setTextColor(remainingDefaultColor)
         }
 
-        // --- INICIO DE LA MODIFICACIÓN ---
         // Guarda los valores actuales para que MonthlySummaryActivity pueda leerlos.
         prefs.edit()
             .putFloat("current_budget", budget.toFloat())
             .putFloat("current_spent", spent.toFloat())
             .apply()
-        // --- FIN DE LA MODIFICACIÓN ---
     }
 
     /* Redibuja el gráfico por categoría en base a los acumulados y presupuesto. */
@@ -373,7 +365,6 @@ class MainActivity : AppCompatActivity() {
 
             val percent = (total / budget * 100.0)
 
-            /* Etiqueta con categoría, monto y porcentaje del presupuesto. */
             val label = TextView(this).apply {
                 text = getString(
                     R.string.fmt_chart_line,
@@ -386,7 +377,6 @@ class MainActivity : AppCompatActivity() {
             }
             chartContainer.addView(label)
 
-            /* Barra horizontal que representa el porcentaje (roja si excede 100%). */
             val bar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
                 max = 100
                 progress = percent.toInt().coerceIn(0, 100)
@@ -413,6 +403,7 @@ class MainActivity : AppCompatActivity() {
             chartContainer.addView(empty)
         }
     }
+
     private val detailLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { res ->
@@ -447,6 +438,44 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    // NUEVO: descarga del tip desde URL usando OkHttp
+    private fun loadTipFromUrl() {
+        val tvTip = findViewById<TextView>(R.id.tvTip)
+        tvTip.text = "Cargando tip..."
+
+        Thread {
+            try {
+                val request = Request.Builder()
+                    .url(TIPS_URL)
+                    .build()
+
+                val response = httpClient.newCall(request).execute()
+                val text = response.body?.string()?.trim()
+
+                runOnUiThread {
+                    if (!text.isNullOrEmpty()) {
+                        val lines = text.split("\n")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() }
+
+                        if (lines.isNotEmpty()) {
+                            val randomTip = lines.random()
+                            tvTip.text = randomTip
+                        } else {
+                            tvTip.text = "No se pudo cargar el tip."
+                        }
+                    } else {
+                        tvTip.text = "No se pudo cargar el tip."
+                    }
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    tvTip.text = "No se pudo cargar el tip."
+                }
+            }
+        }.start()
     }
 
     /* Helpers de parsing y UX. */
