@@ -29,7 +29,7 @@ class MonthlySummaryActivity : AppCompatActivity() {
     }
 
     private fun loadSummaries(): List<DaySummary> {
-        val prefs = getSharedPreferences("gasto_prefs", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("gastos_prefs", Context.MODE_PRIVATE)
         val dayFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val todayStr = dayFormat.format(Date())
 
