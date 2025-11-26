@@ -21,6 +21,7 @@ import java.util.Date
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.bumptech.glide.Glide
 
 // IMPORTS NUEVOS PARA HTTP
 import okhttp3.OkHttpClient
@@ -51,6 +52,8 @@ class MainActivity : AppCompatActivity() {
 
     /* Botón flotante para acciones rápidas. */
     private lateinit var fabMenu: com.google.android.material.floatingactionbutton.FloatingActionButton
+
+    private lateinit var imgHeader: ImageView
 
     /* Estado de resumen: presupuesto, gastado y color por defecto para restante. */
     private var budget = 0.0
@@ -119,6 +122,14 @@ class MainActivity : AppCompatActivity() {
 
         // NUEVO: carga de tip desde URL
         loadTipFromUrl()
+
+        // Carga la imagen del encabezado
+        val imageUrl = "https://raw.githubusercontent.com/NicoAuger/parcial-2-am-acn4b-auger-latorre/main/banner_mis_gastos.jpg"
+        Glide.with(this)
+            .load(imageUrl)
+            .placeholder(R.drawable.ic_cat_otros) // Opcional: se muestra mientras carga
+            .error(R.drawable.ic_cat_otros)       // Opcional: se muestra si hay un error
+            .into(imgHeader)
     }
 
     /* Vincula componentes de la interfaz con sus IDs. */
@@ -138,6 +149,8 @@ class MainActivity : AppCompatActivity() {
         recyclerExpenses = findViewById(R.id.recyclerExpenses)
         chartContainer = findViewById(R.id.chartContainer)
         fabMenu = findViewById(R.id.fabMenu)
+
+        imgHeader = findViewById(R.id.imgHeader)
     }
 
     /* Configura el Spinner de categorías desde recursos. */

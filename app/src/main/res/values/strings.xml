@@ -8,6 +8,7 @@
     <string name="cd_delete_expense">Eliminar gasto</string>
     <string name="cd_expenses_scroll">Lista de gastos</string>
     <string name="cd_fab_actions">Acciones</string>
+    <string name="loading_tip">Cargando tip…</string>
 
     <!-- ──────────────── ACCIONES Y MENSAJES DE USUARIO ──────────────── -->
     <!-- Centralizo mensajes de feedback para reusarlos desde el código -->
@@ -27,6 +28,8 @@
     <string name="fmt_chart_line">%1$s — %2$s (%3$s)</string>
     <string name="hint_chart_needs_budget">Fijá un presupuesto para ver porcentajes</string>
     <string name="hint_chart_no_expenses">Aún no hay gastos para graficar</string>
+    <string name="header_image">Imagen de encabezado</string>
+
 
     <!-- ──────────────── ERRORES Y VALIDACIONES ──────────────── -->
     <!-- Me aseguro de mantener tono consistente en todos los errores -->
