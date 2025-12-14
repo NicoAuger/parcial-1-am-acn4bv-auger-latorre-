@@ -1,142 +1,85 @@
-# Parcial 2 — Aplicaciones Móviles
+# Informe Final — Aplicaciones Móviles
 ## Proyecto: Mis Gastos Diarios
 ### Comisión: ACN4BV
 ### Integrantes: Nicolás Auger — Javier Latorre
 ### Profesor: Sergio Daniel Medina
+### Repositorio: [https://github.com/NicoAuger/parcial-2-am-acn4bv-auger-latorre](https://github.com/NicoAuger/parcial-2-am-acn4bv-auger-latorre-)
 ### Año: 2025
 
 ---
 
-## 1. Introducción
+## 1. Introducción y Evolución del Proyecto
 
-Mis Gastos Diarios es una aplicación mobile desarrollada en Android con Kotlin. Su propósito es permitir al usuario gestionar de forma sencilla sus gastos diarios, definiendo un presupuesto, registrando consumos y visualizando un resumen informativo tanto a nivel diario como mensual.
+"Mis Gastos Diarios" es una aplicación móvil desarrollada en Android con Kotlin. Su propósito es permitir al usuario gestionar de forma sencilla sus gastos diarios, definiendo un presupuesto, registrando consumos y visualizando un resumen informativo.
 
-La aplicación implementa múltiples pantallas, navegación entre actividades, Firebase Authentication, descarga de imagen desde URL y uso de layout, recursos organizados y un comportamiento dinámico que cumple con los requisitos establecidos para el Parcial 2 de la materia.
-
----
-
-## 2. Pantallas de la Aplicación
-
-### 2.1. LoginActivity
-
-**Función principal:**
-Permite al usuario iniciar sesión con una cuenta existente o crear una nueva cuenta para acceder a la aplicación, utilizando Firebase Authentication.
-
-**Elementos:**
-*   Campo de correo electrónico (`EditText`).
-*   Campo de contraseña (`EditText`).
-*   Botón **"Ingresar"**: Para iniciar sesión con credenciales existentes.
-*   Botón **"Registrarse"**: Para crear una nueva cuenta con el correo y contraseña ingresados.
-
-**Flujo general:**
-*   **Inicio de sesión exitoso:** Si las credenciales son válidas, el usuario es redirigido a `MainActivity`.
-*   **Registro exitoso:** Si se crea una nueva cuenta, el usuario inicia sesión automáticamente y es redirigido a `MainActivity`.
-*   **Error:** Si las credenciales son incorrectas, la contraseña es demasiado débil o el correo ya existe, se muestra un mensaje descriptivo al usuario mediante un `Toast`.
+Para esta entrega final, el proyecto ha evolucionado significativamente desde su versión del Parcial 2, migrando de un sistema de persistencia local (`SharedPreferences`) a una arquitectura robusta y conectada a la nube utilizando **Firebase Firestore**. Además, se han incorporado nuevas funcionalidades de consumo de servicios web, como la descarga de contenido de texto con **OkHttp** y la carga de imágenes remotas con **Glide**.
 
 ---
 
-### 2.2. MainActivity (Pantalla Principal)
+## 2. Pantallas y Funcionalidades Principales
 
-Es la pantalla central y más completa del sistema. Sus funcionalidades principales incluyen:
+### 2.1. Flujo de Autenticación (`LoginActivity`, `RegisterActivity`)
 
-1.  **Descarga de imagen de encabezado (Glide):**
-    *   Al iniciar la pantalla, se descarga y muestra una imagen de banner desde una URL remota utilizando la librería Glide.
-    *   Esto demuestra la capacidad de la aplicación para consumir recursos desde internet.
+La aplicación mantiene su sistema de autenticación gestionado por **Firebase Authentication**, el cual es el punto de entrada al ecosistema de datos del usuario.
 
-2.  **Presupuesto diario:**
-    *   El usuario define un presupuesto inicial que habilita los campos para la carga de gastos.
-    *   El valor se almacena localmente mediante SharedPreferences para persistencia.
+*   **Funcionalidad:** Permite al usuario iniciar sesión o registrarse con correo electrónico y contraseña.
+*   **Rol del UID:** Una vez autenticado, el `UID` del usuario se convierte en la clave principal para todas las operaciones en la base de datos, garantizando que cada usuario acceda únicamente a su propia información.
 
-3.  **Registro de gastos:**
-    *   Un formulario permite al usuario registrar un gasto ingresando monto, categoría (mediante un `Spinner`) y una nota opcional.
-    *   Al agregar un gasto, se actualizan en tiempo real la lista, los resúmenes y el gráfico.
+### 2.2. `MainActivity` (Pantalla Principal)
 
-4.  **Lista dinámica de gastos (RecyclerView):**
-    *   Muestra los gastos registrados de forma eficiente. Cada ítem presenta un ícono de categoría, el monto, la nota y un botón para su eliminación directa.
-    *   Los ítems son interactivos y permiten la navegación a una pantalla de detalle.
+La pantalla central ha sido refactorizada para integrar las nuevas tecnologías de backend y consumo de APIs.
 
-5.  **Gráfico por categoría:**
-    *   Se construye dinámicamente mediante código. Representa la distribución del gasto por categoría en relación con el presupuesto total ingresado, mostrando barras de progreso y porcentajes.
+1.  **Base de Datos en la Nube (Firebase Firestore):**
+    *   **Sustitución de `SharedPreferences`**: Toda la persistencia de datos (presupuesto y gastos) ahora es manejada por Firestore. Esto permite que la información del usuario esté sincronizada y disponible en cualquier momento, incluso si reinstala la app.
+    *   **Estructura:** Se definieron dos colecciones: `usuarios` (para guardar el presupuesto) y `gastos` (para cada registro individual, vinculado mediante el campo `userId`).
+    *   **Operaciones CRUD:** La app realiza operaciones de lectura (`get`), creación (`add`) y eliminación (`delete`) de documentos en tiempo real, actualizando la UI de forma asíncrona mediante listeners (`.addOnSuccessListener`). Para optimizar la consulta de gastos por usuario y fecha, se creó un **índice compuesto** en Firestore.
 
-6.  **Menú flotante (FAB):**
-    *   Ofrece un menú contextual con acciones rápidas:
-        *   Limpiar todos los gastos del día.
-        *   Recalcular totales (función de depuración/sincronización).
-        *   Acceder a la pantalla de resumen mensual.
-        *   Cerrar la sesión del usuario (Logout).
+2.  **Carga de Imagen Remota (Glide):**
+    *   Al iniciar la pantalla, se descarga y muestra una imagen de banner desde una URL remota usando la librería **Glide**.
+    *   **URL:** (https://images.unsplash.com/photo-1634733988138-bf2c3a2a13fa?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)
 
----
+3.  **Descarga de Contenido desde URL (OkHttp):**
+    *   Se ha añadido una nueva funcionalidad que muestra "tips de ahorro" dinámicos.
+    *   La función `loadTipFromUrl()` utiliza **OkHttp** para realizar una petición `GET` a un archivo de texto alojado en internet (en el repositorio Git) y muestra el contenido en un `Toast`.
 
-### 2.3. ExpenseDetailActivity
-
-Presenta la información detallada de un gasto seleccionado.
-
-**Datos mostrados:**
-*   Categoría
-*   Monto
-*   Nota (o "Sin nota" cuando está vacía)
-
-**Acciones disponibles:**
-*   Editar el gasto mediante un cuadro de diálogo.
-*   Eliminar el gasto.
-*   Volver sin realizar cambios.
-
-**Resultados:**
-Devuelve a `MainActivity` si el gasto fue editado, eliminado o si no hubo modificaciones, para que la pantalla principal actualice su estado.
+4.  **Lista de Gastos (`RecyclerView`):**
+    *   Se mantiene el uso de `RecyclerView` por su eficiencia para mostrar listas de datos, que ahora se alimentan de la información proveniente de Firestore.
 
 ---
 
-### 2.4. MonthlySummaryActivity
+## 3. Tecnologías y Dependencias Clave Implementadas
 
-Pantalla destinada al resumen mensual de la actividad.
-
-**Funcionamiento:**
-*   La aplicación guarda automáticamente el presupuesto, el total gastado y el saldo al cambiar el día.
-*   Los datos se almacenan en `SharedPreferences`.
-*   La pantalla muestra una lista con los resúmenes de días anteriores, incluyendo:
-    *   Fecha
-    *   Presupuesto del día
-    *   Total gastado
-    *   Saldo resultante
-*   El día actual se identifica visualmente como "Activo".
+1.  **Firebase Authentication:** Para registro, inicio de sesión y gestión de usuarios.
+2.  **Firebase Firestore:** Como base de datos NoSQL en la nube para persistencia de datos (presupuesto y gastos).
+3.  **Glide:** Para la carga eficiente de imágenes desde una URL remota.
+4.  **OkHttp:** Para realizar peticiones de red y consumir APIs de texto simples.
+5.  **Kotlin y Android Jetpack:** Lenguaje moderno y componentes como `RecyclerView` para construir una UI eficiente y mantenible.
 
 ---
 
-## 3. Comportamiento Dinámico Implementado
+## 4. Organización de Recursos y Diseño
 
-1.  **Lista de gastos dinámica:** La lista se actualiza en tiempo real al agregar, editar o eliminar gastos, sin necesidad de recargar la pantalla.
-2.  **Recalculado automático:** El presupuesto, el total gastado, el saldo restante y los colores de advertencia se actualizan inmediatamente al modificar cualquier dato relevante.
-3.  **Gráfico generado por código:** Las barras de progreso del gráfico se crean y actualizan en tiempo de ejecución en función del porcentaje que representa cada categoría sobre el presupuesto total.
-4.  **Persistencia diaria automatizada:** La aplicación registra automáticamente los datos consolidados del día anterior al detectar un cambio de fecha, asegurando un historial coherente.
-5.  **Navegación entre pantallas:** Se implementa un flujo de navegación lógico y completo: `Login` → `Main` → `Detalle` / `Resumen mensual` → `Logout`.
-
----
-
-## 4. Firebase Authentication
-
-Se utiliza **Firebase Auth** como backend para la gestión de usuarios, implementando las siguientes funcionalidades:
-*   Registro de nuevas cuentas mediante correo electrónico y contraseña.
-*   Inicio de sesión de usuarios existentes.
-*   Manejo de sesiones persistentes (el usuario no necesita volver a loguearse cada vez que abre la app).
-*   Cierre de sesión seguro.
-
-Esta integración cumple con uno de los requisitos opcionales del Parcial 2.
+El proyecto sigue las mejores prácticas de organización de recursos en Android para garantizar un código limpio:
+*   **`strings.xml`**: Centraliza todos los textos de la interfaz.
+*   **`colors.xml`**: Define la paleta de colores.
+*   **`dimens.xml`**: Contiene valores de márgenes y tamaños para consistencia visual.
+*   **`drawable`**: Incluye los íconos vectoriales.
+*   **Layouts**: Se emplean `ConstraintLayout` y `LinearLayout` de forma apropiada.
 
 ---
 
-## 5. Organización de Recursos y Diseño
-
-El proyecto sigue las mejores prácticas de organización de recursos en Android para garantizar un código limpio y mantenible:
-*   **`strings.xml`**: Centraliza todos los textos de la interfaz de usuario.
-*   **`colors.xml`**: Define la paleta de colores de la aplicación, incluyendo colores específicos asociados a cada categoría de gasto.
-*   **`dimens.xml`**: Contiene valores de márgenes, tamaños de texto y espaciados para mantener una consistencia visual.
-*   **`drawable`**: Incluye los íconos vectoriales correspondientes a cada categoría de gasto.
-*   **Layouts**: Se emplean `ConstraintLayout` para interfaces complejas y `LinearLayout` para agrupaciones simples, según lo requerido en cada caso.
+## 5. ScreenShots UX
+### CARPETA DE IMÁGENES
+\print-pantallas-UX
 
 ---
 
-## 6. Conclusión
+## 6. Conclusión Final
 
-El proyecto "Mis Gastos Diarios" cumple exitosamente con todos los requerimientos obligatorios y opcionales del Parcial 2, demostrando un manejo sólido de múltiples pantallas, navegación entre actividades, uso de `ConstraintLayout` y `LinearLayout`, comportamiento dinámico, organización de recursos, persistencia de datos con `SharedPreferences` y autenticación de usuarios con un servicio de backend como Firebase.
+El desarrollo de "Mis Gastos Diarios" ha sido un recorrido de aprendizaje práctico y sumamente valioso. La transición desde una aplicación con lógica local a una solución conectada a la nube representó el mayor desafío y, a la vez, el logro más significativo de este proyecto. Integrar el ecosistema de Firebase, especialmente Firestore, nos obligó a repensar la gestión de datos, a trabajar con operaciones asíncronas y a comprender la importancia de una arquitectura de datos bien definida desde el inicio.
 
-Las funcionalidades implementadas, como la descarga de imágenes desde URL y la generación de contenido dinámico, no solo satisfacen la consigna, sino que también sientan las bases para un producto escalable y robusto.
+La implementación de librerías como Glide y OkHttp nos permitió ir más allá de los recursos estáticos de la app, abriendo la puerta al consumo de contenido dinámico desde internet, una habilidad que consideramos fundamental en el desarrollo mobile actual. Cada nueva funcionalidad, desde la autenticación de usuarios hasta la carga de una simple imagen remota, nos ha proporcionado una comprensión más profunda de cómo las diferentes piezas del desarrollo Android moderno se conectan entre sí.
+
+Este proyecto nos deja una base de código sólida y la confianza para abordar proyectos más complejos en el futuro. Ha sido una experiencia que nos ha llevado de la teoría a la práctica de una manera muy tangible.
+
+----
